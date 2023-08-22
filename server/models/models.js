@@ -4,6 +4,7 @@ const { DataTypes } = require("sequelize");
 const User = sequelize.define("user", {
   id: {
     type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
     allowNull: false,
     unique: true,
@@ -48,6 +49,7 @@ const User = sequelize.define("user", {
 const Role = sequelize.define("role", {
   id: {
     type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
     allowNull: false,
     unique: true,
@@ -62,6 +64,7 @@ const Role = sequelize.define("role", {
 const Reader = sequelize.define("reader", {
   id: {
     type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
     allowNull: false,
     unique: true,
@@ -96,6 +99,7 @@ const Reader = sequelize.define("reader", {
 const Genre = sequelize.define("genre", {
   id: {
     type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
     allowNull: false,
     unique: true,
@@ -110,6 +114,7 @@ const Genre = sequelize.define("genre", {
 const Book = sequelize.define("book", {
   id: {
     type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
     allowNull: false,
     unique: true,
@@ -139,6 +144,7 @@ const Book = sequelize.define("book", {
 const Author = sequelize.define("author", {
   id: {
     type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
     allowNull: false,
     unique: true,
@@ -235,7 +241,7 @@ Book.belongsToMany(Author, { through: BookAuthor, foreignKey: "book_id" });
 Author.belongsToMany(Book, { through: BookAuthor, foreignKey: "author_id" });
 
 //relationship between Role and User
-Role.hasMany(User, { foreignKey: "role_id"});
+Role.hasMany(User, { foreignKey: "role_id" });
 
 module.exports = {
   User,
