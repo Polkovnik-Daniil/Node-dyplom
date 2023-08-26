@@ -23,21 +23,26 @@ class GenreController {
   async getCountPages(req, res) {
     //TODO : вместо числа 20 дать название переменной чтобы было поянтно что за число 20
     var countElements = await Genre.count();
-    var number_of_table_elements = 20;
     return res.json(
-      countElements % number_of_table_elements === 0
-        ? parseInt(countElements / number_of_table_elements)
-        : parseInt(countElements / number_of_table_elements + 1)
+      countElements % process.env.NUMBER_OF_TABLE_ELEMENTS === 0
+        ? parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS)
+        : parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS + 1)
     );
   }
 
-  async getPage(req, res) {
-    let { page } = req.params;
-    page = page || 1;
-    var number_of_table_elements = 20;
-    //TODO : дописать функцию возвращающую страницу
-    const genre = await Genre.findAll();
-    return res.json(genre);
+  async getPage(req, res, next) {
+    try {
+      let page = req.params.id;
+      page = parseInt(page);
+      page = page || 1;
+      let limit = process.env.NUMBER_OF_TABLE_ELEMENTS;
+      let offset = page * limit - limit;
+      //TODO : дописать функцию возвращающую страницу
+      let genres = await Genre.findAndCountAll({ limit, offset });
+      return res.json(genres);
+    } catch (e) {
+      next(ApiError.badRequest(e.message));
+    }
   }
 
   async create(req, res, next) {
@@ -56,14 +61,38 @@ class GenreController {
       next(ApiError.badRequest(e.message));
     }
   }
-
+  //протестировать
   async createArray(req, res, next) {
     try {
-      let { genres } = req.body;
+      let genres  = req.body;
       if (!genres) {
         next(ApiError.conflict("Invalid value"));
       }
+      genres = JSON.parse(genres);
+      genres.forEach(async (element) => {
+        const requested_value = await Genre.findOne({
+          where: { name: element.name },
+        });
+        if (!requested_value) {
+          Genre.create({ name: element.name });
+        }
+      });
       //TODO : пройти по всем элементам массива и проверить существуют ли добавляемые элементы в БД, если да то удалить их из списка, иначе оставить
+    } catch (e) {
+      next(ApiError.badRequest(e.message));
+    }
+  }
+
+  async updateElement(req, res, next) {
+    try {
+      let element_id = req.params.id;
+      const requested_value = await Genre.findOne({
+        where: { name: element.name },
+      });
+      if (!requested_value) {
+        next(ApiError.badRequest("Value is not exist"));
+      }
+      return res.json({ message: "Value was added" });
     } catch (e) {
       next(ApiError.badRequest(e.message));
     }
