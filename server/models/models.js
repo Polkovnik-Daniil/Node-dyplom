@@ -1,6 +1,3 @@
-const sequelize = require("../db");
-const { DataTypes } = require("sequelize");
-
 const User = require("./User");
 const Role = require("./Role");
 const Reader = require("./Reader");
@@ -33,6 +30,8 @@ Author.belongsToMany(Book, { through: BookAuthor, foreignKey: "author_id" });
 //relationship between Role and User
 Role.hasMany(User, { foreignKey: "role_id" });
 
+
+//add default value in DB
 module.exports = {
   User,
   Role,
@@ -44,3 +43,4 @@ module.exports = {
   BookGenre,
   BookAuthor,
 };
+

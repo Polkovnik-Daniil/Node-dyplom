@@ -8,7 +8,7 @@ class GenreController {
       if (!id) {
         next(ApiError.badRequest("Invalid value"));
       }
-      const genre = await Genre.findOne({ where: { id } });
+      const genre = await Genre.findOne({ where: { id: id } });
       return res.json(genre);
     } catch (e) {
       next(ApiError.badRequest(e.message));
@@ -64,7 +64,7 @@ class GenreController {
   //протестировать
   async createArray(req, res, next) {
     try {
-      let genres  = req.body;
+      let genres = req.body;
       if (!genres) {
         next(ApiError.conflict("Invalid value"));
       }

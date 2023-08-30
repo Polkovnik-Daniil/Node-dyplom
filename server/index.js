@@ -29,3 +29,4 @@ const start = async () => {
   }
 };
 start();
+const defaultData = require("./models/DefaultData");  //Загружаю дефолтные данные
