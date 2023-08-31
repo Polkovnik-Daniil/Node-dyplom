@@ -1,4 +1,5 @@
 const { v4: uuidv4 } = require("uuid");
+const bcrypt = require("bcrypt");
 
 const User = require("./User");
 const Role = require("./Role");
