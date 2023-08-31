@@ -32,11 +32,16 @@ async function setDefaultData() {
         let user_role = await Role.findOne({ where: { name: "User" } });
         user_id = user_role.id;
       }
+      //made hash passwords default users
+      const hash_password_admin = await bcrypt.hash("admin", 5);
+      const hash_password_moderator = await bcrypt.hash("moderator", 5);
+      const hash_password_user = await bcrypt.hash("user", 5);
+
       await User.create({
         id: uuidv4(),
         name: "Admin",
         email: "admin@example.com",
-        password: "admin",
+        password: hash_password_admin,
         role_id: admin_id,
         is_locked: false,
       });
@@ -44,7 +49,7 @@ async function setDefaultData() {
         id: uuidv4(),
         name: "Moderator",
         email: "moderator@example.com",
-        password: "moderator",
+        password: hash_password_moderator,
         role_id: moderator_id,
         is_locked: false,
       });
@@ -52,7 +57,7 @@ async function setDefaultData() {
         id: uuidv4(),
         name: "User",
         email: "user@example.com",
-        password: "user",
+        password: hash_password_user,
         role_id: user_id,
         is_locked: false,
       });
