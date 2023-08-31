@@ -23,10 +23,10 @@ const start = async () => {
   try {
     await sequelize.authenticate();
     await sequelize.sync();
+    const defaultData = require("./models/DefaultData");  //Загружаю дефолтные данные
     app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
   } catch (e) {
     console.log(e);
   }
 };
 start();
-const defaultData = require("./models/DefaultData");  //Загружаю дефолтные данные

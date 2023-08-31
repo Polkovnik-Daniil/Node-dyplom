@@ -2,7 +2,7 @@ const { Genre } = require("../models/models");
 const ApiError = require("../error/ApiError");
 
 class GenreController {
-  async getOne(req, res, next) {
+  async getById(req, res, next) {
     try {
       const { id } = req.params;
       if (!id) {
@@ -13,11 +13,6 @@ class GenreController {
     } catch (e) {
       next(ApiError.badRequest(e.message));
     }
-  }
-  //access-denied!
-  async getAll(req, res) {
-    const genre = await Genre.findAll();
-    return res.json(genre);
   }
 
   async getCountPages(req, res) {

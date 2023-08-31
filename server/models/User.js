@@ -11,7 +11,7 @@ const User = sequelize.define("user", {
   },
   name: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
     unique: false,
   },
   email: {
@@ -41,6 +41,7 @@ const User = sequelize.define("user", {
   },
   is_locked: {
     type: DataTypes.BOOLEAN,
+    defaultValue: false,
     allowNull: false,
     unique: false,
   },

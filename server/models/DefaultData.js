@@ -25,11 +25,11 @@ async function setDefaultData() {
 
     if (count_user === 0) {
       if (admin_id === null || moderator_id === null || user_id === null) {
-        admin_role = await Role.findOne({ where: { name: "Admin" } });
+        let admin_role = await Role.findOne({ where: { name: "Admin" } });
         admin_id = admin_role.id;
-        moderator_role = await Role.findOne({ where: { name: "Moderator" } });
+        let moderator_role = await Role.findOne({ where: { name: "Moderator" } });
         moderator_id = moderator_role.id;
-        user_role = await Role.findOne({ where: { name: "User" } });
+        let user_role = await Role.findOne({ where: { name: "User" } });
         user_id = user_role.id;
       }
       await User.create({
