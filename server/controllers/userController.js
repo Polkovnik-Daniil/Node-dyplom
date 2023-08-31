@@ -3,15 +3,15 @@ const ApiError = require("../error/ApiError");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const generateJwt = (id, email, role) => {
-  return jwt.sign({ id, email, role }, process.env.SECRET_KEY, {
+const generateJwt = (id, email, role, is_locked) => {
+  return jwt.sign({ id, email, role, is_locked }, process.env.SECRET_KEY, {
     expiresIn: "96h",
   });
 };
 
 class UserController {
   async registration(req, res, next) {
-    let { name, email, password, role } = req.body;
+    let { name, email, password, role, is_locked } = req.body;
     if (!email || !password) {
       return next(ApiError.badRequest("Некорректный email или password"));
     }
@@ -29,8 +29,9 @@ class UserController {
       email: email,
       role_id: role_id,
       password: hashPassword,
+      is_locked: is_locked || false
     });
-    const token = generateJwt(user.id, user.email, user.role);
+    const token = generateJwt(user.id, user.email, user.role, user.is_locked);
     return res.json({ token });
   }
 
@@ -45,7 +46,7 @@ class UserController {
     if (!comparePassword) {
       return next(ApiError.internal("Указан неверный пароль"));
     }
-    const token = generateJwt(user.id, user.email, role.name);
+    const token = generateJwt(user.id, user.email, role.name, user.is_locked);
     return res.json({ token });
   }
 
@@ -54,7 +55,7 @@ class UserController {
     return res.json({ token });
   }
 
-  async getOne(){
+  async getById(){
     
   }
 }
