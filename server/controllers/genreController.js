@@ -9,6 +9,9 @@ class GenreController {
         next(ApiError.badRequest("Invalid value"));
       }
       let genre = await Genre.findOne({ where: { id: id } });
+      if (!genre) {
+        throw new Error(ApiError.notFound("Value is not exist"));
+      }
       return res.json(genre);
     } catch (e) {
       next(ApiError.badRequest(e.message));
@@ -17,12 +20,13 @@ class GenreController {
 
   async getCountPages(req, res) {
     //TODO : вместо числа 20 дать название переменной чтобы было поянтно что за число 20
-    var countElements = await Genre.count();
-    return res.json(
-      countElements % process.env.NUMBER_OF_TABLE_ELEMENTS === 0
-        ? parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS)
-        : parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS + 1)
-    );
+    await Genre.count().then((countElements) => {
+      return res.json(
+        countElements % process.env.NUMBER_OF_TABLE_ELEMENTS === 0
+          ? parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS)
+          : parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS + 1)
+      );
+    });
   }
 
   async getPage(req, res, next) {
@@ -32,62 +36,70 @@ class GenreController {
       page = page || 1;
       let limit = process.env.NUMBER_OF_TABLE_ELEMENTS;
       let offset = page * limit - limit;
-      //TODO : дописать функцию возвращающую страницу
-      let genres = await Genre.findAndCountAll({ limit, offset });
-      return res.json(genres);
+      await Genre.findAndCountAll({ limit, offset }).then((genrePage) => {
+        if (!genrePage) {
+          throw new Error(ApiError.badRequest("Unccorrected value"));
+        }
+        return res.json(genrePage);
+      });
     } catch (e) {
       next(ApiError.badRequest(e.message));
     }
   }
 
-  async create(req, res, next) {
+  async createElement(req, res, next) {
     try {
       let { name } = req.body;
       if (!name) {
-        next(ApiError.conflict("Invalid value"));
+        throw new Error(next(ApiError.conflict("Invalid value")));
       }
-      let isExist = await Genre.findOne({ where: { name: name } });
-      if (!isExist) {
-        return ApiError.conflict("Value already exist");
+      let value = await Genre.findOne({ where: { name: name } });
+      if (value) {
+        throw new Error(ApiError.conflict("Value already exist"));
       }
-      let genre = await Genre.create({ name: name });
-      return res.json({ message: "Value was added" });
-    } catch (e) {
-      next(ApiError.badRequest(e.message));
-    }
-  }
-  //протестировать
-  async createArray(req, res, next) {
-    try {
-      let genres = req.body;
-      if (!genres) {
-        next(ApiError.conflict("Invalid value"));
-      }
-      genres = JSON.parse(genres);
-      genres.forEach(async (element) => {
-        const isExist = await Genre.findOne({
-          where: { name: element.name },
+      await Genre.create({ name: name })
+        .then(() => {
+          return res.status(200);
+        })
+        .catch((e) => {
+          throw new Error(ApiError.conflict("Value already exist"));
         });
-        if (!isExist) {
-          Genre.create({ name: element.name });
-        }
-      });
-      //TODO : пройти по всем элементам массива и проверить существуют ли добавляемые элементы в БД, если да то удалить их из списка, иначе оставить
     } catch (e) {
       next(ApiError.badRequest(e.message));
     }
   }
-  //is not working
+
+  async deleteElement(req, res, next) {
+    try {
+      let { name } = req.body;
+      let value = await Genre.findOne({
+        where: { name: name },
+      });
+      if (!value) {
+        throw new Error(ApiError.badRequest("Value already deleted"));
+      }
+      await value.destroy();
+      await value.save().then(() => {
+        return res.status(200).json({ message: "Ok" });
+      });
+    } catch (e) {
+      next(ApiError.badRequest(e.message));
+    }
+  }
+
   async updateElement(req, res, next) {
     try {
-      let elementId = req.params.id;
-      let isExist = await Genre.findOne({
-        where: { name: element.name },
+      let { nameBefore, nameAfter } = req.body;
+      let value = await Genre.findOne({
+        where: { name: nameBefore },
       });
-      if (!isExist) {
-        next(ApiError.badRequest("Value is not exist"));
+      if (!value) {
+        throw new Error(ApiError.badRequest("Value is not exist"));
       }
-      return res.json({ message: "Value was added" });
+      await value.update({ name: nameAfter });
+      await value.save().then(() => {
+        return res.status(200).json({ message: "Ok" });
+      });
     } catch (e) {
       next(ApiError.badRequest(e.message));
     }
