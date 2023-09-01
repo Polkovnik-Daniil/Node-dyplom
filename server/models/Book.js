@@ -1,7 +1,7 @@
 const sequelize = require("../db");
 const { DataTypes } = require("sequelize");
 
-const Book = sequelize.define("book", {
+const Book = sequelize.define("Book", {
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
@@ -14,17 +14,17 @@ const Book = sequelize.define("book", {
     allowNull: false,
     unique: false,
   },
-  release_date: {
+  releaseDate: {
     type: DataTypes.DATE,
     allowNull: false,
     unique: false,
   },
-  number_of_books: {
+  numberOfBooks: {
     type: DataTypes.INTEGER,
     allowNull: false,
     unique: false,
   },
-  number_of_page: {
+  numberOfPage: {
     type: DataTypes.INTEGER,
     allowNull: false,
     unique: false,

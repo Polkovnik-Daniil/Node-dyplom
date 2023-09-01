@@ -4,11 +4,11 @@ const ApiError = require("../error/ApiError");
 class GenreController {
   async getById(req, res, next) {
     try {
-      const { id } = req.params;
+      let { id } = req.params;
       if (!id) {
         next(ApiError.badRequest("Invalid value"));
       }
-      const genre = await Genre.findOne({ where: { id: id } });
+      let genre = await Genre.findOne({ where: { id: id } });
       return res.json(genre);
     } catch (e) {
       next(ApiError.badRequest(e.message));
@@ -46,11 +46,11 @@ class GenreController {
       if (!name) {
         next(ApiError.conflict("Invalid value"));
       }
-      const requested_value = await Genre.findOne({ where: { name: name } });
-      if (requested_value) {
+      let isExist = await Genre.findOne({ where: { name: name } });
+      if (!isExist) {
         return ApiError.conflict("Value already exist");
       }
-      const genre = await Genre.create({ name: name });
+      let genre = await Genre.create({ name: name });
       return res.json({ message: "Value was added" });
     } catch (e) {
       next(ApiError.badRequest(e.message));
@@ -65,10 +65,10 @@ class GenreController {
       }
       genres = JSON.parse(genres);
       genres.forEach(async (element) => {
-        const requested_value = await Genre.findOne({
+        const isExist = await Genre.findOne({
           where: { name: element.name },
         });
-        if (!requested_value) {
+        if (!isExist) {
           Genre.create({ name: element.name });
         }
       });
@@ -77,14 +77,14 @@ class GenreController {
       next(ApiError.badRequest(e.message));
     }
   }
-
+  //is not working
   async updateElement(req, res, next) {
     try {
-      let element_id = req.params.id;
-      const requested_value = await Genre.findOne({
+      let elementId = req.params.id;
+      let isExist = await Genre.findOne({
         where: { name: element.name },
       });
-      if (!requested_value) {
+      if (!isExist) {
         next(ApiError.badRequest("Value is not exist"));
       }
       return res.json({ message: "Value was added" });

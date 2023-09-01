@@ -6,8 +6,8 @@ module.exports = function (role) {
       next();
     }
     try {
-      is_access = role.includes(req.user.role);
-      if (!is_access) {
+      isAccess = role.includes(req.user.role);
+      if (!isAccess) {
         return res.status(403).json({ message: "Нет доступа" });
       }
       next();

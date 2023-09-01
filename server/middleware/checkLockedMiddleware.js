@@ -6,7 +6,7 @@ module.exports = function () {
       next();
     }
     try {
-      if (req.user.is_locked) {
+      if (req.user.isLocked) {
         return res.status(403).json({ message: "Нет доступа" });
       }
       next();

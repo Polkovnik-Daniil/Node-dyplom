@@ -2,28 +2,28 @@ const sequelize = require("../db");
 const { DataTypes } = require("sequelize");
 
 //связующая таблица
-const BookReader = sequelize.define("book_reader", {
-  book_id: {
+const BookReader = sequelize.define("BookReader", {
+  bookId: {
     type: DataTypes.UUID,
     allowNull: false,
     unique: false,
   },
-  reader_id: {
+  readerId: {
     type: DataTypes.UUID,
     allowNull: false,
     unique: false,
   },
-  user_id: {
+  userId: {
     type: DataTypes.UUID,
     allowNull: false,
     unique: false,
   },
-  date_of_issue_of_the_book: {
+  dateOfIssueOfTheBook: {
     type: DataTypes.DATE,
     allowNull: false,
     unique: false,
   },
-  date_of_book_acceptance: {
+  dateOfBookAcceptance: {
     type: DataTypes.DATE,
     allowNull: false,
     unique: false,

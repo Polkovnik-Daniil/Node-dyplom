@@ -1,7 +1,7 @@
 const sequelize = require("../db");
 const { DataTypes } = require("sequelize");
 
-const Reader = sequelize.define("reader", {
+const Reader = sequelize.define("Reader", {
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
@@ -24,12 +24,12 @@ const Reader = sequelize.define("reader", {
     allowNull: false,
     unique: false,
   },
-  place_of_residence: {
+  placeOfResidence: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: false,
   },
-  phone_number: {
+  phoneNumber: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: false,

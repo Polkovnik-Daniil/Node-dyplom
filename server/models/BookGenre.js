@@ -2,13 +2,13 @@ const sequelize = require("../db");
 const { DataTypes } = require("sequelize");
 
 //связующая таблица
-const BookGenre = sequelize.define("book_genre", {
-  book_id: {
+const BookGenre = sequelize.define("BookGenre", {
+  bookId: {
     type: DataTypes.UUID,
     allowNull: false,
     unique: false,
   },
-  genre_id: {
+  genreId: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: false,

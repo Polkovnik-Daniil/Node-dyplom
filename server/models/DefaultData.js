@@ -6,61 +6,63 @@ const Role = require("./Role");
 
 async function setDefaultData() {
   try {
-    let admin_id = null;
-    let moderator_id = null;
-    let user_id = null;
+    let adminId = null;
+    let moderatorId = null;
+    let userId = null;
 
     const count_role = await Role.count();
 
     if (count_role === 0) {
-      admin_id = uuidv4();
-      moderator_id = uuidv4();
-      user_id = uuidv4();
+      adminId = uuidv4();
+      moderatorId = uuidv4();
+      userId = uuidv4();
 
-      await Role.create({ id: admin_id, name: "Admin" });
-      await Role.create({ id: moderator_id, name: "Moderator" });
-      await Role.create({ id: user_id, name: "User" });
+      await Role.create({ id: adminId, name: "Admin" });
+      await Role.create({ id: moderatorId, name: "Moderator" });
+      await Role.create({ id: userId, name: "User" });
     }
 
-    const count_user = await User.count();
+    const countUser = await User.count();
 
-    if (count_user === 0) {
-      if (admin_id === null || moderator_id === null || user_id === null) {
-        let admin_role = await Role.findOne({ where: { name: "Admin" } });
-        admin_id = admin_role.id;
-        let moderator_role = await Role.findOne({ where: { name: "Moderator" } });
-        moderator_id = moderator_role.id;
-        let user_role = await Role.findOne({ where: { name: "User" } });
-        user_id = user_role.id;
+    if (countUser === 0) {
+      if (adminId === null || moderatorId === null || userId === null) {
+        let adminRole = await Role.findOne({ where: { name: "Admin" } });
+        adminId = adminRole.id;
+        let moderatorRole = await Role.findOne({
+          where: { name: "Moderator" },
+        });
+        moderatorId = moderatorRole.id;
+        let userRole = await Role.findOne({ where: { name: "User" } });
+        userId = userRole.id;
       }
       //made hash passwords default users
-      const hash_password_admin = await bcrypt.hash("admin", 5);
-      const hash_password_moderator = await bcrypt.hash("moderator", 5);
-      const hash_password_user = await bcrypt.hash("user", 5);
+      const HASH_PASSWORD_ADMIN = await bcrypt.hash("admin", 5);
+      const HASH_PASSWORD_MODERATOR = await bcrypt.hash("moderator", 5);
+      const HASH_PASSWORD_USER = await bcrypt.hash("user", 5);
 
       await User.create({
         id: uuidv4(),
         name: "Admin",
         email: "admin@example.com",
-        password: hash_password_admin,
-        role_id: admin_id,
-        is_locked: false,
+        password: HASH_PASSWORD_ADMIN,
+        roleId: adminId,
+        isLocked: false,
       });
       await User.create({
         id: uuidv4(),
         name: "Moderator",
         email: "moderator@example.com",
-        password: hash_password_moderator,
-        role_id: moderator_id,
-        is_locked: false,
+        password: HASH_PASSWORD_MODERATOR,
+        roleId: moderatorId,
+        isLocked: false,
       });
       await User.create({
         id: uuidv4(),
         name: "User",
         email: "user@example.com",
-        password: hash_password_user,
-        role_id: user_id,
-        is_locked: false,
+        password: HASH_PASSWORD_USER,
+        roleId: userId,
+        isLocked: false,
       });
     }
   } catch (e) {

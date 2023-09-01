@@ -3,50 +3,50 @@ const ApiError = require("../error/ApiError");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const generateJwt = (id, email, role, is_locked) => {
-  return jwt.sign({ id, email, role, is_locked }, process.env.SECRET_KEY, {
+const generateJwt = (id, email, role, isLocked) => {
+  return jwt.sign({ id, email, role, isLocked }, process.env.SECRET_KEY, {
     expiresIn: "96h",
   });
 };
 
 class UserController {
   async registration(req, res, next) {
-    let { name, email, password, role, is_locked } = req.body;
+    let { name, email, password, role, isLocked } = req.body;
     if (!email || !password) {
       return next(ApiError.badRequest("Некорректный email или password"));
     }
-    const candidate = await User.findOne({ where: { email: email } });
+    let candidate = await User.findOne({ where: { email: email } });
     if (candidate) {
       return next(
         ApiError.badRequest("Пользователь с таким email уже существует")
       );
     }
-    const hashPassword = await bcrypt.hash(password, 5);
-    role = await Role.findOne({ where: { name: role || "User" } });
-    let role_id = role.id;
+    const HASH_PASSWORD = await bcrypt.hash(password, 5);
+    role = await Role.findOne({ where: { name: role || "User" } }); //если при создании пользователя не была указана роль то по дефолту это пользователь
+    let roleId = role.id;
     const user = await User.create({
       name: name || "User",
       email: email,
-      role_id: role_id,
-      password: hashPassword,
-      is_locked: is_locked || false
+      roleId: roleId,
+      password: HASH_PASSWORD,
+      isLocked: isLocked || false,
     });
-    const token = generateJwt(user.id, user.email, user.role, user.is_locked);
+    let token = generateJwt(user.id, user.email, user.role, user.isLocked);
     return res.json({ token });
   }
 
   async login(req, res, next) {
-    const { email, password } = req.body;
-    const user = await User.findOne({ where: { email } });
+    let { email, password } = req.body;
+    let user = await User.findOne({ where: { email } });
     if (!user) {
       return next(ApiError.internal("Пользователь не найден"));
     }
-    let role = await Role.findOne({ where: { id: user.role_id } });
+    let role = await Role.findOne({ where: { id: user.roleId } });
     let comparePassword = bcrypt.compareSync(password, user.password);
     if (!comparePassword) {
       return next(ApiError.internal("Указан неверный пароль"));
     }
-    const token = generateJwt(user.id, user.email, role.name, user.is_locked);
+    const token = generateJwt(user.id, user.email, role.name, user.isLocked);
     return res.json({ token });
   }
 
@@ -55,9 +55,7 @@ class UserController {
     return res.json({ token });
   }
 
-  async getById(){
-    
-  }
+  async getById() {}
 }
 
 module.exports = new UserController();

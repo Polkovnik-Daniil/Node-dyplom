@@ -1,7 +1,7 @@
 const sequelize = require("../db");
 const { DataTypes } = require("sequelize");
 
-const User = sequelize.define("user", {
+const User = sequelize.define("User", {
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
@@ -24,22 +24,22 @@ const User = sequelize.define("user", {
     allowNull: false,
     unique: false,
   },
-  role_id: {
+  roleId: {
     type: DataTypes.UUID,
     allowNull: false,
     unique: false,
   },
-  refresh_token: {
+  refreshToken: {
     type: DataTypes.STRING,
     allowNull: true,
     unique: false,
   },
-  refresh_token_expiry_time: {
+  refreshTokenExpiryTime: {
     type: DataTypes.STRING,
     allowNull: true,
     unique: false,
   },
-  is_locked: {
+  isLocked: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
     allowNull: false,
