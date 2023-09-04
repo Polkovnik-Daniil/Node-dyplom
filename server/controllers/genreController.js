@@ -1,25 +1,26 @@
 const { Genre } = require("../models/models");
 const ApiError = require("../error/ApiError");
+const logger = require("../logs/logger");
 
 class GenreController {
   async getById(req, res, next) {
     try {
       let { id } = req.params;
       if (!id) {
-        next(ApiError.badRequest("Invalid value"));
+        return next(ApiError.badRequest("Invalid value"));
       }
       let genre = await Genre.findOne({ where: { id: id } });
       if (!genre) {
-        throw new Error(ApiError.notFound("Value is not exist"));
+        return next(ApiError.notFound("Value is not exist"));
       }
       return res.json(genre);
     } catch (e) {
+      logger.error(e.message);
       next(ApiError.badRequest(e.message));
     }
   }
 
   async getCountPages(req, res) {
-    //TODO : вместо числа 20 дать название переменной чтобы было поянтно что за число 20
     await Genre.count().then((countElements) => {
       return res.json(
         countElements % process.env.NUMBER_OF_TABLE_ELEMENTS === 0
@@ -38,11 +39,13 @@ class GenreController {
       let offset = page * limit - limit;
       await Genre.findAndCountAll({ limit, offset }).then((genrePage) => {
         if (!genrePage) {
-          throw new Error(ApiError.badRequest("Unccorrected value"));
+          logger.error("Unccorrected value");
+          return next(ApiError.badRequest("Unccorrected value"));
         }
         return res.json(genrePage);
       });
     } catch (e) {
+      logger.error(e.message);
       next(ApiError.badRequest(e.message));
     }
   }
@@ -51,56 +54,80 @@ class GenreController {
     try {
       let { name } = req.body;
       if (!name) {
-        throw new Error(next(ApiError.conflict("Invalid value")));
+        logger.error("Invalid value");
+        return next(next(ApiError.conflict("Invalid value")));
       }
       let value = await Genre.findOne({ where: { name: name } });
       if (value) {
-        throw new Error(ApiError.conflict("Value already exist"));
+        logger.error("Value already exist");
+        return next(ApiError.conflict("Value already exist"));
       }
       await Genre.create({ name: name })
         .then(() => {
-          return res.status(200);
+          return res.status(200).json({ message: "Ok" });
         })
         .catch((e) => {
-          throw new Error(ApiError.conflict("Value already exist"));
+          logger.error(e.message);
+          next(ApiError.conflict("Value already exist"));
         });
     } catch (e) {
+      logger.error(e.message);
       next(ApiError.badRequest(e.message));
     }
   }
-
-  async deleteElement(req, res, next) {
+  //сделано так потому что мапперов в Node.js не было найдено
+  //можно удалить элемент зная либо id, либо name жанра
+  async deleteElementIncludeById(req, res, next) {
     try {
+      let { id } = req.params;
       let { name } = req.body;
-      let value = await Genre.findOne({
-        where: { name: name },
-      });
+      let isValidData = (!id & name) || (id & !name);
+      if (!isValidData) {
+        logger.error("Unccorrected value");
+        return next(ApiError.badRequest("Unccorrected value"));
+      }
+      //можно удалить объект зная или имя, или id
+      let options = !id ? { where: { name: name } } : { where: { id: id } };
+      let value = await Genre.findOne(options);
       if (!value) {
-        throw new Error(ApiError.badRequest("Value already deleted"));
+        logger.error("Value already deleted");
+        return next(ApiError.badRequest("Value already deleted"));
       }
       await value.destroy();
       await value.save().then(() => {
         return res.status(200).json({ message: "Ok" });
       });
     } catch (e) {
+      logger.error(e.message);
       next(ApiError.badRequest(e.message));
     }
   }
-
-  async updateElement(req, res, next) {
+  //сделано так потому что мапперов в Node.js не было найдено
+  //можно обновить элемент зная либо id c name, либо nameBefore с nameAfter жанра
+  async updateElementIncludeById(req, res, next) {
     try {
-      let { nameBefore, nameAfter } = req.body;
-      let value = await Genre.findOne({
-        where: { name: nameBefore },
-      });
-      if (!value) {
-        throw new Error(ApiError.badRequest("Value is not exist"));
+      let { nameBefore, nameAfter, id, name } = req.body;
+      let isValidData =
+        (nameBefore & nameAfter & !id & !name) ||
+        (!nameBefore & !nameAfter & id & name);
+      if (!isValidData) {
+        logger.error("Unccorrected value");
+        return next(ApiError.badRequest("Unccorrected value"));
       }
-      await value.update({ name: nameAfter });
+      //можно удалить объект зная два имени, или id и name
+      let optionsForFindOne = !id & !name ? { where: { name: nameBefore } } : { where: { id: id } };
+      let value = await Genre.findOne(optionsForFindOne);
+      if (!value) {
+        logger.error("Value is not exist");
+        return next(ApiError.badRequest("Value is not exist"));
+      }
+      let optionsForUpdate = !id & !name ? { name: nameAfter } : { name: name };
+      await value.update(optionsForUpdate);
       await value.save().then(() => {
         return res.status(200).json({ message: "Ok" });
       });
     } catch (e) {
+      logger.error(e.message);
       next(ApiError.badRequest(e.message));
     }
   }

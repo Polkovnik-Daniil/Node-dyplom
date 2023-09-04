@@ -1,20 +1,19 @@
 const Router = require("express");
 const router = new Router();
-const genreController = require("../controllers/genreController");
+const authorController = require("../controllers/authorController");
 const {
   AuthorizationMiddleware,
   CheckLockedMiddleware,
   CheckRoleMiddleware,
   LoggerMiddleware,
 } = require("../middleware/middleware");
-
 router.get(
   "/pages/",
   LoggerMiddleware,
   // AuthorizationMiddleware,
   // CheckRoleMiddleware("Admin, Moderator"),
   // CheckLockedMiddleware,
-  genreController.getCountPages
+  authorController.getCountPages
 );
 router.get(
   "/page/:id",
@@ -22,7 +21,7 @@ router.get(
   // AuthorizationMiddleware,
   // CheckRoleMiddleware("Admin, Moderator"),
   // CheckLockedMiddleware,
-  genreController.getPage
+  authorController.getPage
 );
 router.get(
   "/element/:id",
@@ -30,7 +29,7 @@ router.get(
   // AuthorizationMiddleware,
   // CheckRoleMiddleware("Admin, Moderator"),
   // CheckLockedMiddleware,
-  genreController.getById
+  authorController.getById
 );
 router.post(
   "/create/",
@@ -38,7 +37,7 @@ router.post(
   // AuthorizationMiddleware,
   // CheckRoleMiddleware("Admin, Moderator"),
   // CheckLockedMiddleware,
-  genreController.createElement
+  authorController.createElement
 );
 router.put(
   "/update/",
@@ -46,7 +45,7 @@ router.put(
   // AuthorizationMiddleware,
   // CheckRoleMiddleware("Admin, Moderator"),
   // CheckLockedMiddleware,
-  genreController.updateElementIncludeById
+  authorController.updateElement
 );
 router.delete(
   "/delete/:id",
@@ -54,7 +53,7 @@ router.delete(
   // AuthorizationMiddleware,
   // CheckRoleMiddleware("Admin, Moderator"),
   // CheckLockedMiddleware,
-  genreController.deleteElementIncludeById
+  authorController.deleteElementIncludeById
 );
 
 module.exports = router;
