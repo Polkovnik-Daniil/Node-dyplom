@@ -6,14 +6,17 @@ class AuthorController {
     try {
       let { id } = req.params;
       if (!id) {
+        logger.error(e.message);
         next(ApiError.badRequest("Invalid value"));
       }
       let author = await Author.findOne({ where: { id: id } });
       if (!author) {
+        logger.error(e.message);
         return next(ApiError.notFound("Value is not exist"));
       }
       return res.json(genre);
     } catch (e) {
+      logger.error(e.message);
       next(ApiError.badRequest(e.message));
     }
   }
@@ -32,16 +35,22 @@ class AuthorController {
     try {
       let page = req.params.id;
       page = parseInt(page);
-      page = page || 1;
+      if (!page) {
+        logger.error("Unccorrected value");
+        return next(ApiError.badRequest("Unccorrected value"));
+      }
+      page = page === 0 ? 1 : page;
       let limit = process.env.NUMBER_OF_TABLE_ELEMENTS;
       let offset = page * limit - limit;
       await Author.findAndCountAll({ limit, offset }).then((authorPage) => {
         if (!authorPage) {
+          logger.error(e.message);
           return next(ApiError.badRequest("Unccorrected value"));
         }
         return res.json(authorPage);
       });
     } catch (e) {
+      logger.error(e.message);
       next(ApiError.badRequest(e.message));
     }
   }
@@ -51,12 +60,14 @@ class AuthorController {
       let { name, surname, patrinymic } = req.body;
       let isValidData = name & surname & patrinymic;
       if (!isValidData) {
-        return next(next(ApiError.conflict("Invalid value")));
+        logger.error(e.message);
+        return next(ApiError.conflict("Invalid value"));
       }
       let value = await Author.findOne({
         where: { name: name, surname: surname, patrinymic: patrinymic },
       });
       if (value) {
+        logger.error(e.message);
         return next(ApiError.conflict("Value already exist"));
       }
       await Author.create({
@@ -68,9 +79,11 @@ class AuthorController {
           return res.status(200);
         })
         .catch((e) => {
+          logger.error(e.message);
           next(ApiError.conflict("Value already exist"));
         });
     } catch (e) {
+      logger.error(e.message);
       next(ApiError.badRequest(e.message));
     }
   }
@@ -83,12 +96,14 @@ class AuthorController {
         name & surname & patrinymic & !id ||
         !name & !surname & !patrinymic & id;
       if (!isValidData) {
+        logger.error(e.message);
         return next(ApiError.badRequest("Invalid values"));
       }
       let value = await Author.findOne({
         where: { name: name, surname: surname, patrinymic: patrinymic },
       });
       if (!value) {
+        logger.error(e.message);
         return next(ApiError.badRequest("Value already deleted"));
       }
       await value.destroy();
@@ -96,6 +111,7 @@ class AuthorController {
         return res.status(200).json({ message: "Ok" });
       });
     } catch (e) {
+      logger.error(e.message);
       next(ApiError.badRequest(e.message));
     }
   }
@@ -143,6 +159,7 @@ class AuthorController {
         },
       });
       if (!value) {
+        logger.error(e.message);
         return next(ApiError.badRequest("Value is not exist"));
       }
       await value.update({
@@ -151,9 +168,11 @@ class AuthorController {
         patrinymic: patrinymicAfter,
       });
       await value.save().then(() => {
+        logger.info("Value was added!");
         return res.status(200).json({ message: "Ok" });
       });
     } catch (e) {
+      logger.error(e.message);
       next(ApiError.badRequest(e.message));
     }
   }

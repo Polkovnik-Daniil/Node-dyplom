@@ -1,22 +1,69 @@
 const Router = require("express");
 const router = new Router();
 const userController = require("../controllers/userController");
-const authMiddleware = require("../middleware/AuthorizationMiddleware");
-const checkLockedMiddleware = require("../middleware/CheckLockedMiddleware");
-const checkRoleMiddleware = require("../middleware/CheckRoleMiddleware");
-const loggerMiddleware = require("../middleware/LoggerMiddleware");
+const {
+  AuthorizationMiddleware,
+  CheckLockedMiddleware,
+  CheckRoleMiddleware,
+  LoggerMiddleware,
+} = require("../middleware/middleware");
 router.post("/registration", userController.registration);
 router.post("/create", userController.registration);
 router.post("/login", userController.login);
-router.get("/auth", authMiddleware, userController.check);
-//Обработчик отвечающий за провекру роли
+router.get(
+  "/auth",
+  LoggerMiddleware,
+  AuthorizationMiddleware,
+  CheckLockedMiddleware,
+  userController.check
+);
 router.get(
   "/element/:id",
-  loggerMiddleware,
-  authMiddleware,
-  checkRoleMiddleware("Admin"),
-  checkLockedMiddleware,
+  LoggerMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
   userController.getById
-); 
+);
+router.get(
+  "/element/:id",
+  LoggerMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
+  userController.getById
+);
+router.get(
+  "/pages/",
+  LoggerMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
+  userController.getCountPages
+);
+router.get(
+  "/page/:id",
+  LoggerMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
+  userController.getPage
+);
+router.get(
+  "/update/",
+  LoggerMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
+  userController.updateElementIncludeById
+);
+router.get(
+  "/delete/:id",
+  LoggerMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
+  userController.deleteElementIncludeById
+);
 
 module.exports = router;

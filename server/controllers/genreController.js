@@ -7,10 +7,12 @@ class GenreController {
     try {
       let { id } = req.params;
       if (!id) {
+        logger.error("Invalid value");
         return next(ApiError.badRequest("Invalid value"));
       }
       let genre = await Genre.findOne({ where: { id: id } });
       if (!genre) {
+        logger.error("Value is not exist");
         return next(ApiError.notFound("Value is not exist"));
       }
       return res.json(genre);
@@ -34,7 +36,11 @@ class GenreController {
     try {
       let page = req.params.id;
       page = parseInt(page);
-      page = page || 1;
+      if(!page){
+        logger.error("Unccorrected value");
+        return next(ApiError.badRequest("Unccorrected value"));
+      }
+      page = page === 0 ? 1 : page;
       let limit = process.env.NUMBER_OF_TABLE_ELEMENTS;
       let offset = page * limit - limit;
       await Genre.findAndCountAll({ limit, offset }).then((genrePage) => {
@@ -64,6 +70,7 @@ class GenreController {
       }
       await Genre.create({ name: name })
         .then(() => {
+          logger.error("Value was added");
           return res.status(200).json({ message: "Ok" });
         })
         .catch((e) => {
@@ -95,6 +102,7 @@ class GenreController {
       }
       await value.destroy();
       await value.save().then(() => {
+        logger.info("Value was added");
         return res.status(200).json({ message: "Ok" });
       });
     } catch (e) {
@@ -124,6 +132,7 @@ class GenreController {
       let optionsForUpdate = !id & !name ? { name: nameAfter } : { name: name };
       await value.update(optionsForUpdate);
       await value.save().then(() => {
+        logger.info("Value was added");
         return res.status(200).json({ message: "Ok" });
       });
     } catch (e) {

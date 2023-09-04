@@ -11,49 +11,49 @@ const {
 router.get(
   "/pages/",
   LoggerMiddleware,
-  // AuthorizationMiddleware,
-  // CheckRoleMiddleware("Admin, Moderator"),
-  // CheckLockedMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
   genreController.getCountPages
 );
 router.get(
   "/page/:id",
   LoggerMiddleware,
-  // AuthorizationMiddleware,
-  // CheckRoleMiddleware("Admin, Moderator"),
-  // CheckLockedMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
   genreController.getPage
 );
 router.get(
   "/element/:id",
   LoggerMiddleware,
-  // AuthorizationMiddleware,
-  // CheckRoleMiddleware("Admin, Moderator"),
-  // CheckLockedMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
   genreController.getById
 );
 router.post(
   "/create/",
   LoggerMiddleware,
-  // AuthorizationMiddleware,
-  // CheckRoleMiddleware("Admin, Moderator"),
-  // CheckLockedMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
   genreController.createElement
 );
 router.put(
   "/update/",
   LoggerMiddleware,
-  // AuthorizationMiddleware,
-  // CheckRoleMiddleware("Admin, Moderator"),
-  // CheckLockedMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
   genreController.updateElementIncludeById
 );
 router.delete(
   "/delete/:id",
   LoggerMiddleware,
-  // AuthorizationMiddleware,
-  // CheckRoleMiddleware("Admin, Moderator"),
-  // CheckLockedMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
   genreController.deleteElementIncludeById
 );
 

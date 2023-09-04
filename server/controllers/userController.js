@@ -11,6 +11,7 @@ const generateJwt = (id, email, role, isLocked) => {
 };
 
 class UserController {
+  //createElement
   async registration(req, res, next) {
     let { name, email, password, role, isLocked } = req.body;
     let isValidData = email & password;
@@ -63,10 +64,116 @@ class UserController {
   }
 
   async getById(req, res, next) {
-    let { id } = req.params;
-    let isValidData = id === null;
-    if (!isValidData) {
-      logger.error("");
+    try {
+      let { id } = req.params;
+      if (!id) {
+        logger.error("Invalid value");
+        return next(ApiError.badRequest("Invalid value"));
+      }
+      let user = await User.findOne({ where: { id: id } });
+      if (!user) {
+        logger.error("Value is not exist");
+        return next(ApiError.notFound("Value is not exist"));
+      }
+      return res.json(user);
+    } catch (e) {
+      logger.error(e.message);
+      next(ApiError.badRequest(e.message));
+    }
+  }
+
+  async getCountPages(req, res) {
+    await User.count().then((countElements) => {
+      return res.json(
+        countElements % process.env.NUMBER_OF_TABLE_ELEMENTS === 0
+          ? parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS)
+          : parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS + 1)
+      );
+    });
+  }
+
+  async getPage(req, res, next) {
+    try {
+      let page = req.params.id;
+      page = parseInt(page);
+      if (!page) {
+        logger.error("Unccorrected value");
+        return next(ApiError.badRequest("Unccorrected value"));
+      }
+      page = page === 0 ? 1 : page;
+      let limit = process.env.NUMBER_OF_TABLE_ELEMENTS;
+      let offset = page * limit - limit;
+      await User.findAndCountAll({ limit, offset }).then((userPage) => {
+        if (!userPage) {
+          logger.error("Unccorrected value");
+          return next(ApiError.badRequest("Unccorrected value"));
+        }
+        return res.json(userPage);
+      });
+    } catch (e) {
+      logger.error(e.message);
+      next(ApiError.badRequest(e.message));
+    }
+  }
+
+  //сделано так потому что мапперов в Node.js не было найдено
+  //можно удалить элемент зная либо id, либо name жанра
+  async deleteElementIncludeById(req, res, next) {
+    try {
+      let { id } = req.params;
+      let { email } = req.body;
+      let isValidData = !id & email || id & !email;
+      if (!isValidData) {
+        logger.error("Unccorrected value");
+        return next(ApiError.badRequest("Unccorrected value"));
+      }
+      //можно удалить объект зная или имя, или id
+      let options = !id ? { where: { name: email } } : { where: { id: id } };
+      let value = await Genre.findOne(options);
+      if (!value) {
+        logger.error("Value already deleted");
+        return next(ApiError.badRequest("Value already deleted"));
+      }
+      await value.destroy();
+      await value.save().then(() => {
+        logger.info("Value was added");
+        return res.status(200).json({ message: "Ok" });
+      });
+    } catch (e) {
+      logger.error(e.message);
+      next(ApiError.badRequest(e.message));
+    }
+  }
+  //сделано так потому что мапперов в Node.js не было найдено
+  //можно обновить элемент зная либо id c name, либо nameBefore с nameAfter жанра
+  async updateElementIncludeById(req, res, next) {
+    try {
+      let { name, email, password, role, isLocked } = req.body;
+      let isValidData = name & email & password & role & isLocked;
+      if (!isValidData) {
+        logger.error("Unccorrected value");
+        return next(ApiError.badRequest("Unccorrected value"));
+      }
+      let value = await User.findOne({ where: { email: email } });
+      if (!value) {
+        logger.error("User is not exist");
+        return next(ApiError.badRequest("Value is not exist"));
+      }
+      let valueRole = await Role.findOne({ where: { id: value.roleId } });
+      await value.update({
+        name: name,
+        email: email,
+        password: password,
+        role: valueRole.id,
+        isLocked: isLocked,
+      });
+      await value.save().then(() => {
+        logger.info("Value was added");
+        return res.status(200).json({ message: "Ok" });
+      });
+    } catch (e) {
+      logger.error(e.message);
+      next(ApiError.badRequest(e.message));
     }
   }
 }
