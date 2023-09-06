@@ -3,9 +3,9 @@ const ApiError = require("../error/ApiError");
 const logger = require("../logs/logger");
 
 class GenreController {
-  async getById(req, res, next) {
+  async getById(request, response, next) {
     try {
-      let { id } = req.params;
+      let { id } = request.params;
       if (!id) {
         logger.error("Invalid value");
         return next(ApiError.badRequest("Invalid value"));
@@ -15,26 +15,26 @@ class GenreController {
         logger.error("Value is not exist");
         return next(ApiError.notFound("Value is not exist"));
       }
-      return res.json(genre);
+      return response.json(genre);
     } catch (e) {
       logger.error(e.message);
       next(ApiError.badRequest(e.message));
     }
   }
 
-  async getCountPages(req, res) {
+  async getCountPages(request, response) {
     await Genre.count().then((countElements) => {
       countElements =
         countElements % process.env.NUMBER_OF_TABLE_ELEMENTS === 0
           ? parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS)
           : parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS + 1);
-      return res.json(countElements);
+      return response.json(countElements);
     });
   }
 
-  async getPage(req, res, next) {
+  async getPage(request, response, next) {
     try {
-      let page = req.params.id;
+      let page = request.params.id;
       page = parseInt(page);
       if (!page) {
         logger.error("Unccorrected value");
@@ -48,7 +48,7 @@ class GenreController {
           logger.error("Unccorrected value");
           return next(ApiError.badRequest("Unccorrected value"));
         }
-        return res.json(genrePage);
+        return response.json(genrePage);
       });
     } catch (e) {
       logger.error(e.message);
@@ -56,9 +56,9 @@ class GenreController {
     }
   }
 
-  async createElement(req, res, next) {
+  async createElement(request, response, next) {
     try {
-      let { name } = req.body;
+      let { name } = request.body;
       if (!name) {
         logger.error("Invalid value");
         return next(next(ApiError.conflict("Invalid value")));
@@ -71,7 +71,7 @@ class GenreController {
       await Genre.create({ name: name })
         .then(() => {
           logger.error("Value was added");
-          return res.status(200).json({ message: "Ok" });
+          return response.status(200).json({ message: "Ok" });
         })
         .catch((e) => {
           logger.error(e.message);
@@ -84,10 +84,10 @@ class GenreController {
   }
   //сделано так потому что мапперов в Node.js не было найдено
   //можно удалить элемент зная либо id, либо name жанра
-  async deleteElementIncludeById(req, res, next) {
+  async deleteElementIncludeById(request, response, next) {
     try {
-      let { id } = req.params;
-      let { name } = req.body;
+      let { id } = request.params;
+      let { name } = request.body;
       let isValidData = !id & name || id & !name;
       if (!isValidData) {
         logger.error("Unccorrected value");
@@ -103,7 +103,7 @@ class GenreController {
       await value.destroy();
       await value.save().then(() => {
         logger.info("Value was added");
-        return res.status(200).json({ message: "Ok" });
+        return response.status(200).json({ message: "Ok" });
       });
     } catch (e) {
       logger.error(e.message);
@@ -112,9 +112,9 @@ class GenreController {
   }
   //сделано так потому что мапперов в Node.js не было найдено
   //можно обновить элемент зная либо id c name, либо nameBefore с nameAfter жанра
-  async updateElementIncludeById(req, res, next) {
+  async updateElementIncludeById(request, response, next) {
     try {
-      let { id, name } = req.body;
+      let { id, name } = request.body;
       let isValidData = id & name;
       if (!isValidData) {
         logger.error("Unccorrected value");
@@ -129,7 +129,7 @@ class GenreController {
       await value.update({ name : name});
       await value.save().then(() => {
         logger.info("Value was added");
-        return res.status(200).json({ message: "Ok" });
+        return response.status(200).json({ message: "Ok" });
       });
     } catch (e) {
       logger.error(e.message);

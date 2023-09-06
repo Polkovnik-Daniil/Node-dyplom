@@ -1,10 +1,11 @@
 const { Author } = require("../models/models");
 const ApiError = require("../error/ApiError");
+const StoreControllerService = require("../service/StoreControllerService");
 
 class AuthorController {
-  async getById(req, res, next) {
+  async getById(request, response, next) {
     try {
-      let { id } = req.params;
+      let { id } = request.params;
       if (!id) {
         logger.error("Invalid value");
         next(ApiError.badRequest("Invalid value"));
@@ -14,26 +15,26 @@ class AuthorController {
         logger.error("Value is not exist");
         return next(ApiError.notFound("Value is not exist"));
       }
-      return res.json(value);
+      return response.json(value);
     } catch (e) {
       logger.error(e.message);
       next(ApiError.badRequest(e.message));
     }
   }
 
-  async getCountPages(req, res) {
+  async getCountPages(request, response, next) {
     await Author.count().then((countElements) => {
       countElements =
         countElements % process.env.NUMBER_OF_TABLE_ELEMENTS === 0
           ? parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS)
           : parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS + 1);
-      return res.json(countElements);
+      return response.json(countElements);
     });
   }
 
-  async getPage(req, res, next) {
+  async getPage(request, response, next) {
     try {
-      let page = req.params.id;
+      let page = request.params.id;
       page = parseInt(page);
       if (!page) {
         logger.error("Unccorrected value");
@@ -47,7 +48,7 @@ class AuthorController {
           logger.error("Unccorrected value");
           return next(ApiError.badRequest("Unccorrected value"));
         }
-        return res.json(authorPage);
+        return response.json(authorPage);
       });
     } catch (e) {
       logger.error(e.message);
@@ -55,9 +56,9 @@ class AuthorController {
     }
   }
 
-  async createElement(req, res, next) {
+  async createElement(request, response, next) {
     try {
-      let { name, surname, patrinymic } = req.body;
+      let { name, surname, patrinymic } = request.body;
       let isValidData = name & surname & patrinymic;
       if (!isValidData) {
         logger.error("Invalid value");
@@ -76,7 +77,7 @@ class AuthorController {
         patrinymic: patrinymic,
       })
         .then(() => {
-          return res.status(200);
+          return response.status(200);
         })
         .catch((e) => {
           logger.error(e.message);
@@ -88,10 +89,10 @@ class AuthorController {
     }
   }
 
-  async deleteElementIncludeById(req, res, next) {
+  async deleteElementIncludeById(request, response, next) {
     try {
-      let { id } = req.params;
-      let { name, surname, patrinymic } = req.body;
+      let { id } = request.params;
+      let { name, surname, patrinymic } = request.body;
       let isValidData =
         name & surname & patrinymic & !id ||
         !name & !surname & !patrinymic & id;
@@ -109,7 +110,7 @@ class AuthorController {
       }
       await value.destroy();
       await value.save().then(() => {
-        return res.status(200).json({ message: "Ok" });
+        return response.status(200).json({ message: "Ok" });
       });
     } catch (e) {
       logger.error(e.message);
@@ -117,9 +118,9 @@ class AuthorController {
     }
   }
 
-  async updateElement(req, res, next) {
+  async updateElement(request, response, next) {
     try {
-      let { id, name, surname, patrinymic } = req.body;
+      let { id, name, surname, patrinymic } = request.body;
       let isValidData = id & name & surname & patrinymic;
       if (!isValidData) {
         logger.error("Invalid values");
@@ -141,7 +142,7 @@ class AuthorController {
       });
       await value.save().then(() => {
         logger.info("Value was added!");
-        return res.status(200).json({ message: "Ok" });
+        return response.status(200).json({ message: "Ok" });
       });
     } catch (e) {
       logger.error(e.message);

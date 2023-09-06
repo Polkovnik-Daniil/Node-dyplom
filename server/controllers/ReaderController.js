@@ -1,10 +1,11 @@
 const { Reader } = require("../models/models");
 const ApiError = require("../error/ApiError");
+const logger = require("../logs/logger");
 
 class ReaderController {
-  async getById(req, res, next) {
+  async getById(request, response, next) {
     try {
-      let { id } = req.params;
+      let { id } = request.params;
       if (!id) {
         logger.error("Invalid value");
         next(ApiError.badRequest("Invalid value"));
@@ -14,26 +15,26 @@ class ReaderController {
         logger.error("Value is not exist");
         return next(ApiError.notFound("Value is not exist"));
       }
-      return res.json(value);
+      return response.json(value);
     } catch (e) {
       logger.error(e.message);
       next(ApiError.badRequest(e.message));
     }
   }
 
-  async getCountPages(req, res) {
+  async getCountPages(request, response) {
     await Reader.count().then((countElements) => {
       countElements =
         countElements % process.env.NUMBER_OF_TABLE_ELEMENTS === 0
           ? parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS)
           : parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS + 1);
-      return res.json(countElements);
+      return response.json(countElements);
     });
   }
 
-  async getPage(req, res, next) {
+  async getPage(request, response, next) {
     try {
-      let page = req.params.id;
+      let page = request.params.id;
       page = parseInt(page);
       if (!page) {
         logger.error("Unccorrected value");
@@ -47,7 +48,7 @@ class ReaderController {
           logger.error("Unccorrected value");
           return next(ApiError.badRequest("Unccorrected value"));
         }
-        return res.json(valuesPage);
+        return response.json(valuesPage);
       });
     } catch (e) {
       logger.error(e.message);
@@ -55,10 +56,10 @@ class ReaderController {
     }
   }
 
-  async createElement(req, res, next) {
+  async createElement(request, response, next) {
     try {
       let { name, surname, patrinymic, placeOfResidence, phoneNumber } =
-        req.body;
+      request.body;
       let isValidData =
         name & surname & patrinymic & placeOfResidence & phoneNumber;
       if (!isValidData) {
@@ -86,7 +87,7 @@ class ReaderController {
         phoneNumber: phoneNumber,
       })
         .then(() => {
-          return res.status(200);
+          return response.status(200);
         })
         .catch((e) => {
           logger.error(e.message);
@@ -98,11 +99,11 @@ class ReaderController {
     }
   }
 
-  async deleteElementIncludeById(req, res, next) {
+  async deleteElementIncludeById(request, response, next) {
     try {
-      let { id } = req.params;
+      let { id } = request.params;
       let { name, surname, patrinymic, placeOfResidence, phoneNumber } =
-        req.body;
+      request.body;
       let isValidData =
         name & surname & patrinymic & placeOfResidence & phoneNumber & !id ||
         !name & !surname & !patrinymic & !placeOfResidence & !phoneNumber & id;
@@ -128,7 +129,7 @@ class ReaderController {
       }
       await value.destroy();
       await value.save().then(() => {
-        return res.status(200).json({ message: "Ok" });
+        return response.status(200).json({ message: "Ok" });
       });
     } catch (e) {
       logger.error(e.message);
@@ -136,10 +137,10 @@ class ReaderController {
     }
   }
 
-  async updateElement(req, res, next) {
+  async updateElement(request, response, next) {
     try {
       let { name, surname, patrinymic, placeOfResidence, phoneNumber, id } =
-        req.body;
+      request.body;
       let isValidData =
         name & surname & patrinymic & placeOfResidence & phoneNumber & id;
       if (!isValidData) {
@@ -164,7 +165,7 @@ class ReaderController {
       });
       await value.save().then(() => {
         logger.info("Value was added!");
-        return res.status(200).json({ message: "Ok" });
+        return response.status(200).json({ message: "Ok" });
       });
     } catch (e) {
       logger.error(e.message);
