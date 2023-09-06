@@ -1,12 +1,13 @@
 const Router = require("express");
 const router = new Router();
-const userController = require("../controllers/userController");
+const userController = require("../controllers/UserController");
 const {
   AuthorizationMiddleware,
   CheckLockedMiddleware,
   CheckRoleMiddleware,
   LoggerMiddleware,
 } = require("../middleware/middleware");
+
 router.post("/registration", userController.registration);
 router.post("/create", userController.registration);
 router.post("/login", userController.login);

@@ -1,7 +1,7 @@
-const { Author } = require("../models/models");
+const { BookAuthor } = require("../models/models");
 const ApiError = require("../error/ApiError");
 
-class AuthorController {
+class BookAuthorController {
   async getById(req, res, next) {
     try {
       let { id } = req.params;
@@ -9,7 +9,7 @@ class AuthorController {
         logger.error("Invalid value");
         next(ApiError.badRequest("Invalid value"));
       }
-      let value = await Author.findOne({ where: { id: id } });
+      let value = await BookAuthor.findOne({ where: { id: id } });
       if (!value) {
         logger.error("Value is not exist");
         return next(ApiError.notFound("Value is not exist"));
@@ -22,7 +22,7 @@ class AuthorController {
   }
 
   async getCountPages(req, res) {
-    await Author.count().then((countElements) => {
+    await BookAuthor.count().then((countElements) => {
       countElements =
         countElements % process.env.NUMBER_OF_TABLE_ELEMENTS === 0
           ? parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS)
@@ -42,12 +42,12 @@ class AuthorController {
       page = page === 0 ? 1 : page;
       let limit = process.env.NUMBER_OF_TABLE_ELEMENTS;
       let offset = page * limit - limit;
-      await Author.findAndCountAll({ limit, offset }).then((authorPage) => {
-        if (!authorPage) {
+      await BookAuthor.findAndCountAll({ limit, offset }).then((valuesPage) => {
+        if (!valuesPage) {
           logger.error("Unccorrected value");
           return next(ApiError.badRequest("Unccorrected value"));
         }
-        return res.json(authorPage);
+        return res.json(valuesPage);
       });
     } catch (e) {
       logger.error(e.message);
@@ -57,23 +57,25 @@ class AuthorController {
 
   async createElement(req, res, next) {
     try {
-      let { name, surname, patrinymic } = req.body;
-      let isValidData = name & surname & patrinymic;
+      let { bookId, authorId } = req.body;
+      let isValidData = bookId & authorId;
       if (!isValidData) {
         logger.error("Invalid value");
         return next(ApiError.conflict("Invalid value"));
       }
-      let value = await Author.findOne({
-        where: { name: name, surname: surname, patrinymic: patrinymic },
+      let value = await BookAuthor.findOne({
+        where: {
+          bookId: bookId,
+          authorId: authorId,
+        },
       });
       if (value) {
         logger.error("Value already exist");
         return next(ApiError.conflict("Value already exist"));
       }
-      await Author.create({
-        name: name,
-        surname: surname,
-        patrinymic: patrinymic,
+      await BookAuthor.create({
+        bookId: bookId,
+        authorId: authorId,
       })
         .then(() => {
           return res.status(200);
@@ -91,18 +93,21 @@ class AuthorController {
   async deleteElementIncludeById(req, res, next) {
     try {
       let { id } = req.params;
-      let { name, surname, patrinymic } = req.body;
-      let isValidData =
-        name & surname & patrinymic & !id ||
-        !name & !surname & !patrinymic & id;
+      let { bookId, authorId } = req.body;
+      let isValidData = bookId & authorId;
       if (!isValidData) {
         logger.error("Invalid values");
         return next(ApiError.badRequest("Invalid values"));
       }
       let optionForFindOne = !id
-        ? { where: { name: name, surname: surname, patrinymic: patrinymic } }
+        ? {
+            where: {
+              bookId: bookId,
+              authorId: authorId,
+            },
+          }
         : { where: { id: id } };
-      let value = await Author.findOne(optionForFindOne);
+      let value = await BookAuthor.findOne(optionForFindOne);
       if (!value) {
         logger.error("Value already deleted");
         return next(ApiError.badRequest("Value already deleted"));
@@ -119,13 +124,13 @@ class AuthorController {
 
   async updateElement(req, res, next) {
     try {
-      let { id, name, surname, patrinymic } = req.body;
-      let isValidData = id & name & surname & patrinymic;
+      let { id, bookId, authorId } = req.body;
+      let isValidData = id & bookId & authorId;
       if (!isValidData) {
         logger.error("Invalid values");
         return next(ApiError.badRequest("Invalid values"));
       }
-      let value = await Author.findOne({
+      let value = await BookAuthor.findOne({
         where: {
           id: id,
         },
@@ -135,9 +140,8 @@ class AuthorController {
         return next(ApiError.badRequest("Value is not exist"));
       }
       await value.update({
-        name: name,
-        surname: surname,
-        patrinymic: patrinymic,
+        bookId: bookId,
+        authorId: authorId,
       });
       await value.save().then(() => {
         logger.info("Value was added!");
@@ -150,4 +154,4 @@ class AuthorController {
   }
 }
 
-module.exports = new AuthorController();
+module.exports = new BookAuthorController();

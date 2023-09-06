@@ -3,6 +3,11 @@ const { DataTypes } = require("sequelize");
 
 //связующая таблица
 const BookReader = sequelize.define("BookReader", {
+  id : {
+    type: DataTypes.UUID,
+    allowNull: false,
+    unique: true,
+  },
   bookId: {
     type: DataTypes.UUID,
     allowNull: false,

@@ -24,11 +24,11 @@ class GenreController {
 
   async getCountPages(req, res) {
     await Genre.count().then((countElements) => {
-      return res.json(
+      countElements =
         countElements % process.env.NUMBER_OF_TABLE_ELEMENTS === 0
           ? parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS)
-          : parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS + 1)
-      );
+          : parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS + 1);
+      return res.json(countElements);
     });
   }
 
@@ -36,7 +36,7 @@ class GenreController {
     try {
       let page = req.params.id;
       page = parseInt(page);
-      if(!page){
+      if (!page) {
         logger.error("Unccorrected value");
         return next(ApiError.badRequest("Unccorrected value"));
       }
@@ -88,14 +88,14 @@ class GenreController {
     try {
       let { id } = req.params;
       let { name } = req.body;
-      let isValidData = (!id & name) || (id & !name);
+      let isValidData = !id & name || id & !name;
       if (!isValidData) {
         logger.error("Unccorrected value");
         return next(ApiError.badRequest("Unccorrected value"));
       }
       //можно удалить объект зная или имя, или id
-      let options = !id ? { where: { name: name } } : { where: { id: id } };
-      let value = await Genre.findOne(options);
+      let optionsForFindOne = !id ? { where: { name: name } } : { where: { id: id } };
+      let value = await Genre.findOne(optionsForFindOne);
       if (!value) {
         logger.error("Value already deleted");
         return next(ApiError.badRequest("Value already deleted"));
@@ -114,23 +114,19 @@ class GenreController {
   //можно обновить элемент зная либо id c name, либо nameBefore с nameAfter жанра
   async updateElementIncludeById(req, res, next) {
     try {
-      let { nameBefore, nameAfter, id, name } = req.body;
-      let isValidData =
-        (nameBefore & nameAfter & !id & !name) ||
-        (!nameBefore & !nameAfter & id & name);
+      let { id, name } = req.body;
+      let isValidData = id & name;
       if (!isValidData) {
         logger.error("Unccorrected value");
         return next(ApiError.badRequest("Unccorrected value"));
       }
       //можно удалить объект зная два имени, или id и name
-      let optionsForFindOne = !id & !name ? { where: { name: nameBefore } } : { where: { id: id } };
-      let value = await Genre.findOne(optionsForFindOne);
+      let value = await Genre.findOne({ where: { id: id } });
       if (!value) {
         logger.error("Value is not exist");
         return next(ApiError.badRequest("Value is not exist"));
       }
-      let optionsForUpdate = !id & !name ? { name: nameAfter } : { name: name };
-      await value.update(optionsForUpdate);
+      await value.update({ name : name});
       await value.save().then(() => {
         logger.info("Value was added");
         return res.status(200).json({ message: "Ok" });

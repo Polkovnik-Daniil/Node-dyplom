@@ -1,20 +1,19 @@
 const Router = require("express");
 const router = new Router();
-const genreController = require("../controllers/GenreController");
+const bookController = require("../controllers/BookController");
 const {
   AuthorizationMiddleware,
   CheckLockedMiddleware,
   CheckRoleMiddleware,
   LoggerMiddleware,
 } = require("../middleware/middleware");
-
 router.get(
   "/pages/",
   LoggerMiddleware,
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
-  genreController.getCountPages
+  bookController.getCountPages
 );
 router.get(
   "/page/:id",
@@ -22,7 +21,7 @@ router.get(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
-  genreController.getPage
+  bookController.getPage
 );
 router.get(
   "/element/:id",
@@ -30,7 +29,7 @@ router.get(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
-  genreController.getById
+  bookController.getById
 );
 router.post(
   "/create/",
@@ -38,7 +37,7 @@ router.post(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
-  genreController.createElement
+  bookController.createElement
 );
 router.put(
   "/update/",
@@ -46,7 +45,7 @@ router.put(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
-  genreController.updateElementIncludeById
+  bookController.updateElement
 );
 router.delete(
   "/delete/:id",
@@ -54,7 +53,7 @@ router.delete(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
-  genreController.deleteElementIncludeById
+  bookController.deleteElementIncludeById
 );
 
 module.exports = router;

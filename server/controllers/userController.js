@@ -21,7 +21,7 @@ class UserController {
     }
     let candidate = await User.findOne({ where: { email: email } });
     if (candidate) {
-      logger.error(e.message);
+      logger.error("Пользователь с таким email уже существует");
       return next(
         ApiError.badRequest("Пользователь с таким email уже существует")
       );
@@ -84,11 +84,11 @@ class UserController {
 
   async getCountPages(req, res) {
     await User.count().then((countElements) => {
-      return res.json(
+      countElements =
         countElements % process.env.NUMBER_OF_TABLE_ELEMENTS === 0
           ? parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS)
-          : parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS + 1)
-      );
+          : parseInt(countElements / process.env.NUMBER_OF_TABLE_ELEMENTS + 1);
+      return res.json(countElements);
     });
   }
 
@@ -128,8 +128,8 @@ class UserController {
         return next(ApiError.badRequest("Unccorrected value"));
       }
       //можно удалить объект зная или имя, или id
-      let options = !id ? { where: { name: email } } : { where: { id: id } };
-      let value = await Genre.findOne(options);
+      let optionsForFindOne = !id ? { where: { name: email } } : { where: { id: id } };
+      let value = await Genre.findOne(optionsForFindOne);
       if (!value) {
         logger.error("Value already deleted");
         return next(ApiError.badRequest("Value already deleted"));

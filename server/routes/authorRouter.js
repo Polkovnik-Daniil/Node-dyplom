@@ -1,6 +1,6 @@
 const Router = require("express");
 const router = new Router();
-const authorController = require("../controllers/authorController");
+const authorController = require("../controllers/AuthorController");
 const {
   AuthorizationMiddleware,
   CheckLockedMiddleware,
@@ -10,49 +10,49 @@ const {
 router.get(
   "/pages/",
   LoggerMiddleware,
-  // AuthorizationMiddleware,
-  // CheckRoleMiddleware("Admin, Moderator"),
-  // CheckLockedMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
   authorController.getCountPages
 );
 router.get(
   "/page/:id",
   LoggerMiddleware,
-  // AuthorizationMiddleware,
-  // CheckRoleMiddleware("Admin, Moderator"),
-  // CheckLockedMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
   authorController.getPage
 );
 router.get(
   "/element/:id",
   LoggerMiddleware,
-  // AuthorizationMiddleware,
-  // CheckRoleMiddleware("Admin, Moderator"),
-  // CheckLockedMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
   authorController.getById
 );
 router.post(
   "/create/",
   LoggerMiddleware,
-  // AuthorizationMiddleware,
-  // CheckRoleMiddleware("Admin, Moderator"),
-  // CheckLockedMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
   authorController.createElement
 );
 router.put(
   "/update/",
   LoggerMiddleware,
-  // AuthorizationMiddleware,
-  // CheckRoleMiddleware("Admin, Moderator"),
-  // CheckLockedMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
   authorController.updateElement
 );
 router.delete(
   "/delete/:id",
   LoggerMiddleware,
-  // AuthorizationMiddleware,
-  // CheckRoleMiddleware("Admin, Moderator"),
-  // CheckLockedMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator"),
+  CheckLockedMiddleware,
   authorController.deleteElementIncludeById
 );
 
