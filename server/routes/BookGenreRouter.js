@@ -1,39 +1,38 @@
 const Router = require("express");
 const router = new Router();
-const userController = require("../controllers/UserController");
+const bookGenreController = require("../controllers/BookGenreController");
+const { checkSchema } = require("express-validator");
 const {
   AuthorizationMiddleware,
   CheckLockedMiddleware,
   CheckRoleMiddleware,
   LoggerMiddleware,
+  CheckResultValidationData,
 } = require("../middleware/middleware");
-const { checkSchema } = require("express-validator");
 const validationId = require("../validation/ValidationId");
 const validationGetPage = require("../validation/ValidationGetPage");
-const userValidationLogin = require("../validation/user/UserValidationLogin");
-const userValidationCreateElement = require("../validation/user/UserValidationCreateElement");
-const userValidationUpdateElement = require("../validation/user/UserValidationUpdateElement");
+const bookGenreValidationCreateElement = require("../validation/book.genre/BookGenreValidationCreateElement");
+const bookGenreValidationUpdateElement = require("../validation/book.genre/BookGenreValidationUpdateElement");
 
-router.post(
-  "/registration",
-  LoggerMiddleware,
-  checkSchema(userValidationCreateElement),
-  CheckResultValidationData,
-  userController.registration
-);
-router.post(
-  "/login",
-  LoggerMiddleware,
-  checkSchema(userValidationLogin),
-  CheckResultValidationData,
-  userController.login
-);
+
 router.get(
-  "/auth",
+  "/pages/",
   LoggerMiddleware,
   AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator, User"),
   CheckLockedMiddleware,
-  userController.check
+  bookGenreController.getCountPages
+);
+
+router.get(
+  "/page/:id",
+  LoggerMiddleware,
+  AuthorizationMiddleware,
+  CheckRoleMiddleware("Admin, Moderator, User"),
+  CheckLockedMiddleware,
+  checkSchema(validationGetPage),
+  CheckResultValidationData,
+  bookGenreController.getPage
 );
 router.get(
   "/element/:id",
@@ -43,37 +42,29 @@ router.get(
   CheckLockedMiddleware,
   checkSchema(validationId),
   CheckResultValidationData,
-  userController.getById
+  bookGenreController.getById
 );
-router.get(
-  "/pages/",
+router.post(
+  "/create/",
   LoggerMiddleware,
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
-  userController.getCountPages
-);
-router.get(
-  "/page/:id",
-  LoggerMiddleware,
-  AuthorizationMiddleware,
-  CheckRoleMiddleware("Admin, Moderator"),
-  CheckLockedMiddleware,
-  checkSchema(validationGetPage),
+  checkSchema(bookGenreValidationCreateElement),
   CheckResultValidationData,
-  userController.getPage
+  bookGenreController.createElement
 );
-router.get(
+router.put(
   "/update/",
   LoggerMiddleware,
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
-  checkSchema(userValidationUpdateElement),
+  checkSchema(bookGenreValidationUpdateElement),
   CheckResultValidationData,
-  userController.updateElementByEmail
+  bookGenreController.updateElement
 );
-router.get(
+router.delete(
   "/delete/:id",
   LoggerMiddleware,
   AuthorizationMiddleware,
@@ -81,7 +72,7 @@ router.get(
   CheckLockedMiddleware,
   checkSchema(validationId),
   CheckResultValidationData,
-  userController.deleteElementById
+  bookGenreController.deleteElementById
 );
 
 module.exports = router;

@@ -3,6 +3,8 @@ const CheckLockedMiddleware = require("./CheckLockedMiddleware");
 const CheckRoleMiddleware = require("./CheckRoleMiddleware");
 const ErrorHandlingMiddleware = require("./ErrorHandlingMiddleware");
 const LoggerMiddleware = require("./LoggerMiddleware");
+const CheckResultValidationData = require("./CheckResultValidationData");
+
 
 module.exports = {
   AuthorizationMiddleware,
@@ -10,4 +12,5 @@ module.exports = {
   CheckRoleMiddleware,
   ErrorHandlingMiddleware,
   LoggerMiddleware,
+  CheckResultValidationData,
 };

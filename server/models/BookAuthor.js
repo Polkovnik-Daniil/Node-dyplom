@@ -7,6 +7,8 @@ const BookAuthor = sequelize.define("BookAuthor", {
     type: DataTypes.UUID,
     allowNull: false,
     unique: true,
+    primaryKey: true,
+    defaultValue: DataTypes.UUIDV4,
   },
   bookId: {
     type: DataTypes.UUID,

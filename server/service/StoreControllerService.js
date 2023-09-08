@@ -2,27 +2,22 @@ const ApiError = require("../error/ApiError");
 const logger = require("../logs/logger");
 
 class StoreControllerService {
-  async getById(request, response, next, model) {
+  async getById(id, model) {
     try {
-      let { id } = request.params;
-      if (!id) {
-        logger.error("Invalid value");
-        next(ApiError.badRequest("Invalid value"));
-      }
       let value = await model.findOne({ where: { id: id } });
       if (!value) {
         logger.error("Value is not exist");
-        return next(ApiError.notFound("Value is not exist"));
+        throw new Error(ApiError.notFound("Value is not exist"));
       }
-      return response.json(value);
+      return value;
     } catch (e) {
       logger.error(e.message);
-      next(ApiError.badRequest(e.message));
+      throw new Error(ApiError.badRequest(e.message));
     }
   }
 
-  async getCountPages(request, response, next, model) {
-    await model
+  async getCountPages(model) {
+    let countElements = await model
       .count()
       .then((countElements) => {
         countElements =
@@ -31,127 +26,92 @@ class StoreControllerService {
             : parseInt(
                 countElements / process.env.NUMBER_OF_TABLE_ELEMENTS + 1
               );
-        return response.json(countElements);
+        return countElements;
       })
       .catch((e) => {
         logger.error(e.message);
-        next(ApiError.badRequest(e.message));
+        throw new Error(ApiError.badRequest(e.message));
       });
+    return countElements;
   }
 
-  async getPage(request, response, next, model) {
+  async getPage(page, model) {
     try {
-      let page = request.params.id;
-      page = parseInt(page);
-      if (!page) {
-        logger.error("Unccorrected value");
-        return next(ApiError.badRequest("Unccorrected value"));
-      }
-      page = page === 0 ? 1 : page;
       let limit = process.env.NUMBER_OF_TABLE_ELEMENTS;
       let offset = page * limit - limit;
-      await model.findAndCountAll({ limit, offset }).then((modelPage) => {
-        if (!modelPage) {
-          logger.error("Unccorrected value");
-          return next(ApiError.badRequest("Unccorrected value"));
-        }
-        return response.json(modelPage);
-      });
+      let modelPage = await model
+        .findAndCountAll({ limit, offset })
+        .then((modelPage) => {
+          if (!modelPage) {
+            logger.error("Unccorrected value");
+            throw new Error(ApiError.badRequest("Unccorrected value"));
+          }
+          return modelPage;
+        });
+      return modelPage;
     } catch (e) {
       logger.error(e.message);
-      next(ApiError.badRequest(e.message));
+      throw new Error(ApiError.badRequest(e.message));
     }
   }
 
-  async createElement(
-    request,
-    response,
-    next,
-    model,
-    isValidData,
-    optionForFindOne,
-    optionsForCreate
-  ) {
+  async createElement(model, optionForFindOne, optionForCreate) {
     try {
-      if (!isValidData) {
-        logger.error("Invalid value");
-        return next(ApiError.conflict("Invalid value"));
-      }
       let value = await model.findOne(optionForFindOne);
       if (value) {
         logger.error("Value already exist");
-        return next(ApiError.conflict("Value already exist"));
+        throw new Error(ApiError.conflict("Value already exist"));
       }
       await model
-        .create(optionsForCreate)
-        .then(() => {
-          return response.status(200);
+        .create(optionForCreate)
+        .then((result) => {
+          return result;
         })
         .catch((e) => {
           logger.error(e.message);
-          next(ApiError.conflict("Value already exist"));
+          throw new Error(ApiError.conflict("Value already exist"));
         });
+        return true;
     } catch (e) {
       logger.error(e.message);
-      next(ApiError.badRequest(e.message));
+      throw new Error(ApiError.badRequest(e.message));
     }
   }
 
-  async deleteElementIncludeById(
-    request,
-    response,
-    next,
-    model,
-    isValidData,
-    optionForFindOne
-  ) {
+  async deleteElementById(id, model) {
     try {
-      if (!isValidData) {
-        logger.error("Invalid values");
-        return next(ApiError.badRequest("Invalid values"));
-      }
-      let value = await model.findOne(optionForFindOne);
+      let value = await model.findOne({ where: { id: id } });
       if (!value) {
         logger.error("Value already deleted");
-        return next(ApiError.badRequest("Value already deleted"));
+        throw new Error(ApiError.badRequest("Value already deleted"));
       }
       await value.destroy();
       await value.save().then(() => {
         return response.status(200).json({ message: "Ok" });
       });
+      return true;
     } catch (e) {
       logger.error(e.message);
-      next(ApiError.badRequest(e.message));
+      throw new Error(ApiError.badRequest(e.message));
     }
   }
 
-  async updateElement(
-    request,
-    response,
-    next,
-    model,
-    isValidData,
-    optionForFindOne,
-    optionForUpdate
-  ) {
+  async updateElement(optionForFindOne, optionForUpdate, model) {
     try {
-      if (!isValidData) {
-        logger.error("Invalid values");
-        return next(ApiError.badRequest("Invalid values"));
-      }
       let value = await model.findOne(optionForFindOne);
       if (!value) {
         logger.error("Value is not exist");
-        return next(ApiError.badRequest("Value is not exist"));
+        throw new Error(ApiError.badRequest("Value is not exist"));
       }
       await value.update(optionForUpdate);
       await value.save().then(() => {
         logger.info("Value was added!");
         return response.status(200).json({ message: "Ok" });
       });
+      return true;
     } catch (e) {
       logger.error(e.message);
-      next(ApiError.badRequest(e.message));
+      throw new Error(ApiError.badRequest(e.message));
     }
   }
 }

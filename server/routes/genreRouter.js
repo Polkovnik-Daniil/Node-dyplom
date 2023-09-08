@@ -1,12 +1,20 @@
 const Router = require("express");
 const router = new Router();
 const genreController = require("../controllers/GenreController");
+const { checkSchema } = require("express-validator");
 const {
   AuthorizationMiddleware,
   CheckLockedMiddleware,
   CheckRoleMiddleware,
   LoggerMiddleware,
+  CheckResultValidationData,
 } = require("../middleware/middleware");
+const validationId = require("../validation/ValidationId");
+const validationGetPage = require("../validation/ValidationGetPage");
+const genreValidationCreateElement = require("../validation/genre/GenreValidationCreateElement");
+const genreValidationUpdateElement = require("../validation/genre/GenreValidationUpdateElement");
+
+
 
 router.get(
   "/pages/",
@@ -22,6 +30,8 @@ router.get(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
+  checkSchema(validationGetPage),
+  CheckResultValidationData,
   genreController.getPage
 );
 router.get(
@@ -30,6 +40,8 @@ router.get(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
+  checkSchema(validationId),
+  CheckResultValidationData,
   genreController.getById
 );
 router.post(
@@ -38,6 +50,8 @@ router.post(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
+  checkSchema(genreValidationCreateElement),
+  CheckResultValidationData,
   genreController.createElement
 );
 router.put(
@@ -46,7 +60,9 @@ router.put(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
-  genreController.updateElementIncludeById
+  checkSchema(genreValidationUpdateElement),
+  CheckResultValidationData,
+  genreController.updateElement
 );
 router.delete(
   "/delete/:id",
@@ -54,7 +70,9 @@ router.delete(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
-  genreController.deleteElementIncludeById
+  checkSchema(validationId),
+  CheckResultValidationData,
+  genreController.deleteElementById
 );
 
 module.exports = router;

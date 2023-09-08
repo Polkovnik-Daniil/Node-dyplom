@@ -1,12 +1,20 @@
 const Router = require("express");
 const router = new Router();
 const authorController = require("../controllers/AuthorController");
+const { checkSchema } = require("express-validator");
 const {
   AuthorizationMiddleware,
   CheckLockedMiddleware,
   CheckRoleMiddleware,
   LoggerMiddleware,
+  CheckResultValidationData,
 } = require("../middleware/middleware");
+const validationId = require("../validation/ValidationId");
+const validationGetPage = require("../validation/ValidationGetPage");
+const authorValidationCreateElement = require("../validation/author/AuthorValidationCreateElement");
+const authorValidationUpdateElement = require("../validation/author/AuthorValidationUpdateElement");
+
+
 router.get(
   "/pages/",
   LoggerMiddleware,
@@ -15,12 +23,15 @@ router.get(
   CheckLockedMiddleware,
   authorController.getCountPages
 );
+
 router.get(
   "/page/:id",
   LoggerMiddleware,
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
+  checkSchema(validationGetPage),
+  CheckResultValidationData,
   authorController.getPage
 );
 router.get(
@@ -29,6 +40,8 @@ router.get(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
+  checkSchema(validationId),
+  CheckResultValidationData,
   authorController.getById
 );
 router.post(
@@ -37,6 +50,8 @@ router.post(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
+  checkSchema(authorValidationCreateElement),
+  CheckResultValidationData,
   authorController.createElement
 );
 router.put(
@@ -45,6 +60,8 @@ router.put(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
+  checkSchema(authorValidationUpdateElement),
+  CheckResultValidationData,
   authorController.updateElement
 );
 router.delete(
@@ -53,7 +70,9 @@ router.delete(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
-  authorController.deleteElementIncludeById
+  checkSchema(validationId),
+  CheckResultValidationData,
+  authorController.deleteElementById
 );
 
 module.exports = router;

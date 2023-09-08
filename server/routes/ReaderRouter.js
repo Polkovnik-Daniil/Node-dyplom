@@ -6,7 +6,14 @@ const {
   CheckLockedMiddleware,
   CheckRoleMiddleware,
   LoggerMiddleware,
+  CheckResultValidationData,
 } = require("../middleware/middleware");
+const validationId = require("../validation/ValidationId");
+const validationGetPage = require("../validation/ValidationGetPage");
+const readerValidationCreateElement = require("../validation/reader/ReaderValidationCreateElement");
+const readerValidationUpdateElement = require("../validation/reader/ReaderValidationUpdateElement");
+const { checkSchema } = require("express-validator");
+
 router.get(
   "/pages/",
   LoggerMiddleware,
@@ -21,6 +28,8 @@ router.get(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
+  checkSchema(validationGetPage),
+  CheckResultValidationData,
   readerController.getPage
 );
 router.get(
@@ -29,6 +38,8 @@ router.get(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
+  checkSchema(validationId),
+  CheckResultValidationData,
   readerController.getById
 );
 router.post(
@@ -37,6 +48,8 @@ router.post(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
+  checkSchema(readerValidationCreateElement),
+  CheckResultValidationData,
   readerController.createElement
 );
 router.put(
@@ -45,6 +58,8 @@ router.put(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
+  checkSchema(readerValidationUpdateElement),
+  CheckResultValidationData,
   readerController.updateElement
 );
 router.delete(
@@ -53,7 +68,9 @@ router.delete(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
-  readerController.deleteElementIncludeById
+  checkSchema(validationId),
+  CheckResultValidationData,
+  readerController.deleteElementById
 );
 
 module.exports = router;

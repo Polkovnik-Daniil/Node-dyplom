@@ -6,7 +6,14 @@ const {
   CheckLockedMiddleware,
   CheckRoleMiddleware,
   LoggerMiddleware,
+  CheckResultValidationData,
 } = require("../middleware/middleware");
+const validationId = require("../validation/ValidationId");
+const validationGetPage = require("../validation/ValidationGetPage");
+const bookValidationCreateElement = require("../validation/book/BookValidationCreateElement");
+const bookValidationUpdateElement = require("../validation/book/BookValidationUpdateElement");
+
+
 router.get(
   "/pages/",
   LoggerMiddleware,
@@ -20,7 +27,9 @@ router.get(
   LoggerMiddleware,
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
-  CheckLockedMiddleware,
+  CheckLockedMiddleware,  
+  checkSchema(validationGetPage),
+  CheckResultValidationData,
   bookController.getPage
 );
 router.get(
@@ -29,6 +38,8 @@ router.get(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
+  checkSchema(validationId),
+  CheckResultValidationData,
   bookController.getById
 );
 router.post(
@@ -37,6 +48,8 @@ router.post(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
+  checkSchema(bookValidationCreateElement),
+  CheckResultValidationData,
   bookController.createElement
 );
 router.put(
@@ -45,6 +58,8 @@ router.put(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
+  checkSchema(bookValidationUpdateElement),
+  CheckResultValidationData,
   bookController.updateElement
 );
 router.delete(
@@ -53,6 +68,8 @@ router.delete(
   AuthorizationMiddleware,
   CheckRoleMiddleware("Admin, Moderator"),
   CheckLockedMiddleware,
+  checkSchema(validationId),
+  CheckResultValidationData,
   bookController.deleteElementIncludeById
 );
 
