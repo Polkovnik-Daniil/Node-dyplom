@@ -6,6 +6,7 @@ const {
   CheckLockedMiddleware,
   CheckRoleMiddleware,
   LoggerMiddleware,
+  CheckResultValidationData
 } = require("../middleware/middleware");
 const { checkSchema } = require("express-validator");
 const validationId = require("../validation/ValidationId");

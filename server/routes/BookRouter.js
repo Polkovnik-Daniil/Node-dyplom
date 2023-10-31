@@ -8,6 +8,8 @@ const {
   LoggerMiddleware,
   CheckResultValidationData,
 } = require("../middleware/middleware");
+const { checkSchema } = require("express-validator");
+
 const validationId = require("../validation/ValidationId");
 const validationGetPage = require("../validation/ValidationGetPage");
 const bookValidationCreateElement = require("../validation/book/BookValidationCreateElement");
@@ -70,7 +72,7 @@ router.delete(
   CheckLockedMiddleware,
   checkSchema(validationId),
   CheckResultValidationData,
-  bookController.deleteElementIncludeById
+  bookController.deleteElementById
 );
 
 module.exports = router;
